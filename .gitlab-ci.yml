@@ -1,0 +1,28 @@
+stages:
+  - "Build"
+  - "Release"
+
+Maven Build:
+  image: maven:3-jdk-8
+  stage: "Build"
+  script: mvn clean install
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - target/prymate-proxy.jar
+
+PryMate Docker Release:
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_TLS_CERTDIR: ""
+  stage: "Release"
+  script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker build -t shibme/prymate .
+    - docker push shibme/prymate
+    - docker logout
+  only:
+    - master
+    - stagingster
