@@ -1,6 +1,6 @@
 package me.shib.tools.prymate;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class PryMateProcessor extends Thread {
 
@@ -17,7 +17,7 @@ public class PryMateProcessor extends Thread {
         while (true) {
             try {
                 queue.next().build(dataManager);
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

@@ -1,10 +1,8 @@
 package me.shib.tools.prymate;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,34 +21,64 @@ class PryMateDataStore {
     PryMateDataStore(File dir, String host) throws IOException {
         this.dataStoreDir = new File(dir.getPath() + File.separator + host);
         this.dataStoreDir.mkdirs();
-        this.requests = new LinkedBlockingDeque<>(readFromFile());
+        this.requests = new LinkedBlockingDeque<>(getRequestsFromLog());
     }
 
-    private synchronized void writeToFile(String content) throws FileNotFoundException {
-        File file = new File(dataStoreDir.getPath() + File.separator + dateFormat.format(new Date()));
+    private File currentLogFile() {
+        return new File(dataStoreDir.getPath() + File.separator + dateFormat.format(new Date()) + ".log");
+    }
+
+    private void appendToFile(String content) throws IOException {
+        StringBuilder fileContents = getContentsFromLog();
+        fileContents.append(content);
+        File file = currentLogFile();
         PrintWriter pw = new PrintWriter(file);
-        pw.append(content);
+        pw.append(fileContents.toString());
         pw.close();
     }
 
-    private List<PryMateRequest> readFromFile() throws IOException {
-        File file = new File(dataStoreDir.getPath() + File.separator + dateFormat.format(new Date()));
+    private StringBuilder getContentsFromLog() throws IOException {
+        File file = currentLogFile();
         StringBuilder content = new StringBuilder();
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        String line;
-        while ((line = br.readLine()) != null) {
-            content.append(line).append("\n");
+        if (file.exists()) {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line = br.readLine();
+            while (line != null) {
+                content.append(line);
+                line = br.readLine();
+                if (line != null) {
+                    content.append("\n");
+                }
+            }
+            br.close();
         }
-        br.close();
-        Type type = new TypeToken<List<PryMateRequest>>() {
-        }.getType();
-        return gson.fromJson(content.toString(), type);
+        return content;
     }
 
-    void flush() throws FileNotFoundException {
-        List<PryMateRequest> flushableRequests = new ArrayList<>();
-        requests.drainTo(flushableRequests);
-        writeToFile(gson.toJson(flushableRequests));
+    private List<PryMateRequest> getRequestsFromLog() throws IOException {
+        File file = currentLogFile();
+        List<PryMateRequest> requests = new ArrayList<>();
+        if (file.exists()) {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (!line.isEmpty()) {
+                    requests.add(gson.fromJson(line, PryMateRequest.class));
+                }
+            }
+            br.close();
+        }
+        return requests;
+    }
+
+    synchronized void flush() throws IOException {
+        List<PryMateRequest> requestsToFlush = new ArrayList<>();
+        requests.drainTo(requestsToFlush);
+        StringBuilder log = new StringBuilder();
+        for (PryMateRequest request : requestsToFlush) {
+            log.append(gson.toJson(request)).append("\n");
+        }
+        appendToFile(log.toString());
     }
 
     void put(PryMateRequest request) {

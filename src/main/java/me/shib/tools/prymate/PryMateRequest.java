@@ -12,7 +12,7 @@ import java.util.Map;
 
 final class PryMateRequest {
 
-    private Date time;
+    private long time;
     private String method;
     private String host;
     private String path;
@@ -20,7 +20,7 @@ final class PryMateRequest {
     private String body;
 
     private PryMateRequest(Date time, HttpRequest request, String body, HttpMessageInfo info) throws MalformedURLException {
-        this.time = time;
+        this.time = time.getTime();
         this.method = request.getMethod().name();
         URL url = new URL(info.getOriginalUrl());
         this.host = url.getHost();
@@ -32,7 +32,7 @@ final class PryMateRequest {
         this.body = body;
     }
 
-    Date getTime() {
+    long getTime() {
         return time;
     }
 

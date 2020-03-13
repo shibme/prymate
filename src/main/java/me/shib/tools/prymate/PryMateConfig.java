@@ -11,7 +11,7 @@ import java.util.Set;
 final class PryMateConfig {
 
     private static final transient String PRYMATE_CONFIG_URL = "PRYMATE_CONFIG_URL";
-    private static final transient File pryMateConfigFile = new File("prymate.json");
+    private static final transient File pryMateConfigFile = new File("prymate-config.json");
     private static final transient int defaultPort = 7796;
     private static final transient int defaultThreads = 2;
     private static final transient Gson gson = new Gson();
@@ -70,8 +70,10 @@ final class PryMateConfig {
                 }
             } catch (IOException ignored) {
             }
-            System.out.println("No config file was found. Using default config.");
-            config = new PryMateConfig();
+            if (config == null) {
+                System.out.println("No config file was found. Using default config.");
+                config = new PryMateConfig();
+            }
         }
         return config;
     }
