@@ -29,12 +29,11 @@ class PryMateDataStore {
     }
 
     private void appendToFile(String content) throws IOException {
-        StringBuilder fileContents = getContentsFromLog();
-        fileContents.append(content);
         File file = currentLogFile();
-        PrintWriter pw = new PrintWriter(file);
-        pw.append(fileContents.toString());
-        pw.close();
+        BufferedWriter out = new BufferedWriter(
+                new FileWriter(file, true));
+        out.write(content);
+        out.close();
     }
 
     private StringBuilder getContentsFromLog() throws IOException {
