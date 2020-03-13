@@ -73,11 +73,13 @@ class PryMateDataStore {
     synchronized void flush() throws IOException {
         List<PryMateRequest> requestsToFlush = new ArrayList<>();
         requests.drainTo(requestsToFlush);
-        StringBuilder log = new StringBuilder();
-        for (PryMateRequest request : requestsToFlush) {
-            log.append(gson.toJson(request)).append("\n");
+        if (requestsToFlush.size() > 0) {
+            StringBuilder log = new StringBuilder();
+            for (PryMateRequest request : requestsToFlush) {
+                log.append(gson.toJson(request)).append("\n");
+            }
+            appendToFile(log.toString());
         }
-        appendToFile(log.toString());
     }
 
     void put(PryMateRequest request) {

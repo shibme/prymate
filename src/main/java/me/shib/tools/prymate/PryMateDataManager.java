@@ -10,7 +10,7 @@ import java.util.Set;
 class PryMateDataManager extends Thread {
 
     private static final transient String pryMateDataDirName = "prymate-data";
-    private static final transient int flushTime = 10;
+    private static final transient int flushTime = 5;
     private static transient PryMateDataManager dataManager;
     private transient Map<String, PryMateDataStore> storeMap;
 

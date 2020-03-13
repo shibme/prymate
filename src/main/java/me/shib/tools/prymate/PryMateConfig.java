@@ -11,9 +11,9 @@ import java.util.Set;
 final class PryMateConfig {
 
     private static final transient String PRYMATE_CONFIG_URL = "PRYMATE_CONFIG_URL";
-    private static final transient File pryMateConfigFile = new File("prymate-config.json");
+    private static final transient File pryMateConfigFile = new File("prymate.json");
     private static final transient int defaultPort = 7796;
-    private static final transient int defaultThreads = 2;
+    private static final transient int defaultThreads = 3;
     private static final transient Gson gson = new Gson();
 
     private static transient PryMateConfig config;
@@ -61,7 +61,7 @@ final class PryMateConfig {
             try {
                 String json = getConfigFromURL();
                 if (json == null) {
-                    System.out.println(PRYMATE_CONFIG_URL + " was not set. Looking for prymate.json");
+                    System.out.println(PRYMATE_CONFIG_URL + " was not set. Looking for " + pryMateConfigFile.getName());
                     json = getConfigFromFile();
                 }
                 if (!json.isEmpty()) {
